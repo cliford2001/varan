@@ -12,8 +12,6 @@ Este pipeline está diseñado para realizar análisis de variantes y procesos re
 Además, este pipeline utiliza contenedores para asegurar la reproducibilidad de todos los pasos del análisis, incluyendo herramientas como:
 
 - GATK4
-- snpEff
-- Ensembl VEP
 
 ## Estructura del Pipeline
 
@@ -31,10 +29,7 @@ El flujo de trabajo incluye los siguientes pasos principales:
 4. **Filtrado de variantes**:
    - Las variantes detectadas se filtran mediante GATK VariantFiltration.
 
-5. **Anotación de variantes**:
-   - Opcionalmente, las variantes pueden ser anotadas utilizando **snpEff** o **VEP**.
-
-6. **Generación de informes**:
+5. **Generación de informes**:
    - Se recogen todos los informes de calidad de control (QC) y versiones de software usadas, que se recopilan para su posterior análisis con **MultiQC**.
 
 ## Parámetros de Entrada
