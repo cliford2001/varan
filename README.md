@@ -1,91 +1,61 @@
-[![GitHub Actions CI Status](https://github.com/varan/varan/actions/workflows/ci.yml/badge.svg)](https://github.com/varan/varan/actions/workflows/ci.yml)
-[![GitHub Actions Linting Status](https://github.com/varan/varan/actions/workflows/linting.yml/badge.svg)](https://github.com/varan/varan/actions/workflows/linting.yml)[![Cite with Zenodo](http://img.shields.io/badge/DOI-10.5281/zenodo.XXXXXXX-1073c8?labelColor=000000)](https://doi.org/10.5281/zenodo.XXXXXXX)
-[![nf-test](https://img.shields.io/badge/unit_tests-nf--test-337ab7.svg)](https://www.nf-test.com)
+# VARAN Pipeline
 
-[![Nextflow](https://img.shields.io/badge/nextflow%20DSL2-%E2%89%A523.04.0-23aa62.svg)](https://www.nextflow.io/)
-[![run with conda](http://img.shields.io/badge/run%20with-conda-3EB049?labelColor=000000&logo=anaconda)](https://docs.conda.io/en/latest/)
-[![run with docker](https://img.shields.io/badge/run%20with-docker-0db7ed?labelColor=000000&logo=docker)](https://www.docker.com/)
-[![run with singularity](https://img.shields.io/badge/run%20with-singularity-1d355c.svg?labelColor=000000)](https://sylabs.io/docs/)
-[![Launch on Seqera Platform](https://img.shields.io/badge/Launch%20%F0%9F%9A%80-Seqera%20Platform-%234256e7)](https://tower.nf/launch?pipeline=https://github.com/varan/varan)
+## Descripción
+Este pipeline está diseñado para realizar análisis de variantes y procesos relacionados con el alineamiento de secuencias de RNA-Seq y la anotación de variantes. El flujo de trabajo está implementado usando **Nextflow** y sigue las mejores prácticas para la reproducibilidad y portabilidad. Incluye módulos y sub-workflows de **GATK4**, **snpEff**, **Ensembl VEP**, entre otros.
 
-## Introduction
+## Requisitos
 
-**varan/varan** is a bioinformatics pipeline that ...
+- **Nextflow**: Para ejecutar el pipeline.
+- **Docker/Singularity**: Para la portabilidad de las dependencias y el entorno de ejecución.
+- **Git**: Para clonar el repositorio.
+  
+Además, este pipeline utiliza contenedores para asegurar la reproducibilidad de todos los pasos del análisis, incluyendo herramientas como:
 
-<!-- TODO nf-core:
-   Complete this sentence with a 2-3 sentence summary of what types of data the pipeline ingests, a brief overview of the
-   major pipeline sections and the types of output it produces. You're giving an overview to someone new
-   to nf-core here, in 15-20 seconds. For an example, see https://github.com/nf-core/rnaseq/blob/master/README.md#introduction
--->
+- GATK4
+- snpEff
+- Ensembl VEP
 
-<!-- TODO nf-core: Include a figure that guides the user through the major workflow steps. Many nf-core
-     workflows use the "tube map" design for that. See https://nf-co.re/docs/contributing/design_guidelines#examples for examples.   -->
-<!-- TODO nf-core: Fill in short bullet-pointed list of the default steps in the pipeline -->
+## Estructura del Pipeline
 
-1. Read QC ([`FastQC`](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/))
-2. Present QC for raw reads ([`MultiQC`](http://multiqc.info/))
+El flujo de trabajo incluye los siguientes pasos principales:
 
-## Usage
+1. **Preparación del genoma**:
+   - Se crea el índice del genoma y otros archivos de referencia necesarios para el análisis.
+   
+2. **Validación de archivos de entrada**:
+   - Se verifica y valida el archivo `samplesheet.csv` que contiene los datos de entrada y se preparan los canales de entrada.
 
-> [!NOTE]
-> If you are new to Nextflow and nf-core, please refer to [this page](https://nf-co.re/docs/usage/installation) on how to set-up Nextflow. Make sure to [test your setup](https://nf-co.re/docs/usage/introduction#how-to-run-a-pipeline) with `-profile test` before running the workflow on actual data.
+3. **Llamada de variantes**:
+   - Procesamiento de las secuencias mediante el algoritmo de GATK HaplotypeCaller para detectar variantes SNPs e indels.
 
-<!-- TODO nf-core: Describe the minimum required steps to execute the pipeline, e.g. how to prepare samplesheets.
-     Explain what rows and columns represent. For instance (please edit as appropriate):
+4. **Filtrado de variantes**:
+   - Las variantes detectadas se filtran mediante GATK VariantFiltration.
 
-First, prepare a samplesheet with your input data that looks as follows:
+5. **Anotación de variantes**:
+   - Opcionalmente, las variantes pueden ser anotadas utilizando **snpEff** o **VEP**.
 
-`samplesheet.csv`:
+6. **Generación de informes**:
+   - Se recogen todos los informes de calidad de control (QC) y versiones de software usadas, que se recopilan para su posterior análisis con **MultiQC**.
 
-```csv
-sample,fastq_1,fastq_2
-CONTROL_REP1,AEG588A1_S1_L002_R1_001.fastq.gz,AEG588A1_S1_L002_R2_001.fastq.gz
-```
+## Parámetros de Entrada
 
-Each row represents a fastq file (single-end) or a pair of fastq files (paired end).
+El pipeline requiere los siguientes parámetros de entrada:
 
--->
+- `--input`: Archivo de entrada en formato CSV con las muestras a procesar.
+- `--fasta`: Archivo FASTA del genoma de referencia.
+- `--fasta_fai`: Índice del archivo FASTA.
+- `--dict`: Archivo de diccionario del genoma de referencia.
+- `--gtf/gff`: Anotaciones de genes en formato GTF o GFF.
+- `--dbsnp`: Archivo VCF de variantes conocidas de dbSNP.
+- `--known_indels`: Archivo VCF de indels conocidos.
+- `--snpeff_cache`: Directorio de caché para snpEff.
+- `--vep_cache`: Directorio de caché para VEP.
+- `--star_index`: Índice STAR para alineamiento de RNA-Seq.
 
-Now, you can run the pipeline using:
+## Ejecución del Pipeline
 
-<!-- TODO nf-core: update the following command to include all required parameters for a minimal example -->
+Para ejecutar el pipeline, asegúrate de tener **Nextflow** instalado, y luego usa el siguiente comando:
 
 ```bash
-nextflow run varan/varan \
-   -profile <docker/singularity/.../institute> \
-   --input samplesheet.csv \
-   --outdir <OUTDIR>
-```
+nextflow run varan.nf --input samplesheet.csv --fasta genome.fasta --dbsnp dbsnp.vcf --vep_cache vep_cache/ --snpeff_cache snpeff_cache/
 
-> [!WARNING]
-> Please provide pipeline parameters via the CLI or Nextflow `-params-file` option. Custom config files including those provided by the `-c` Nextflow option can be used to provide any configuration _**except for parameters**_;
-> see [docs](https://nf-co.re/usage/configuration#custom-configuration-files).
-
-## Credits
-
-varan/varan was originally written by matias vergara.
-
-We thank the following people for their extensive assistance in the development of this pipeline:
-
-<!-- TODO nf-core: If applicable, make list of people who have also contributed -->
-
-## Contributions and Support
-
-If you would like to contribute to this pipeline, please see the [contributing guidelines](.github/CONTRIBUTING.md).
-
-## Citations
-
-<!-- TODO nf-core: Add citation for pipeline after first release. Uncomment lines below and update Zenodo doi and badge at the top of this file. -->
-<!-- If you use varan/varan for your analysis, please cite it using the following doi: [10.5281/zenodo.XXXXXX](https://doi.org/10.5281/zenodo.XXXXXX) -->
-
-<!-- TODO nf-core: Add bibliography of tools and data used in your pipeline -->
-
-An extensive list of references for the tools used by the pipeline can be found in the [`CITATIONS.md`](CITATIONS.md) file.
-
-This pipeline uses code and infrastructure developed and maintained by the [nf-core](https://nf-co.re) community, reused here under the [MIT license](https://github.com/nf-core/tools/blob/master/LICENSE).
-
-> **The nf-core framework for community-curated bioinformatics pipelines.**
->
-> Philip Ewels, Alexander Peltzer, Sven Fillinger, Harshil Patel, Johannes Alneberg, Andreas Wilm, Maxime Ulysse Garcia, Paolo Di Tommaso & Sven Nahnsen.
->
-> _Nat Biotechnol._ 2020 Feb 13. doi: [10.1038/s41587-020-0439-x](https://dx.doi.org/10.1038/s41587-020-0439-x).
