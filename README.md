@@ -1,4 +1,4 @@
-# VARAN Pipeline
+g VARAN Pipeline
 
 ## Descripción
 Este pipeline está diseñado para realizar análisis de variantes y procesos relacionados con el alineamiento de secuencias de RNA-Seq y la anotación de variantes. El flujo de trabajo está implementado usando **Nextflow** y sigue las mejores prácticas para la reproducibilidad y portabilidad. Incluye módulos y sub-workflows de **GATK4**, **snpEff**, **Ensembl VEP**, entre otros.
@@ -49,7 +49,6 @@ El pipeline requiere los siguientes parámetros de entrada:
 - `--dbsnp`: Archivo VCF de variantes conocidas de dbSNP.
 - `--known_indels`: Archivo VCF de indels conocidos.
 - `--snpeff_cache`: Directorio de caché para snpEff.
-- `--vep_cache`: Directorio de caché para VEP.
 - `--star_index`: Índice STAR para alineamiento de RNA-Seq.
 
 ## Ejecución del Pipeline
@@ -57,5 +56,5 @@ El pipeline requiere los siguientes parámetros de entrada:
 Para ejecutar el pipeline, asegúrate de tener **Nextflow** instalado, y luego usa el siguiente comando:
 
 ```bash
-nextflow run varan.nf --input samplesheet.csv --fasta genome.fasta --dbsnp dbsnp.vcf --vep_cache vep_cache/ --snpeff_cache snpeff_cache/
+nextflow run varan.nf --input samplesheet.csv --fasta genome.fasta --dbsnp dbsnp.vcf --snpeff_cache snpeff_cache/
 
